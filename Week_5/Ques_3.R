@@ -1,7 +1,0 @@
-library(bnlearn)
-library(caret)
-library(e1071)
-mydata<-read.table("C:/Users/ADMIN/Desktop/AI Codes/Week_5/2020_bn_nb_data.txt", header=TRUE)
-mydata.net<-hc(mydata,score="k2",start=NULL)
-mydata.net.fit<-bn.fit(mydata.net, mydata)
-cpquery(mydata.net.fit, event = ( PH100 == "CD" ), evidence = ( EC100 == "DD" & IT101 == "CC" & MA101 == "CD" ))
