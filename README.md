@@ -1,4 +1,4 @@
-# CS362-AI-Laboratory-Report-1
+# CS362-AI-Laboratory-Report-1 | Pre-mid-sem
 
 * Week 2: To understand the use of Heuristic function for reducing the size of the search space.  Explore non-classical search algorithms for large problems.
 * Week 3: Non-deterministic Search | Simulated Annealing For problems with large search spaces, randomized search becomes a meaningful option given partial/ full-information about the domain.  
