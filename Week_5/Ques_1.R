@@ -1,0 +1,8 @@
+library(bnlearn)
+library(caret)
+library(e1071)
+mydata<-read.table("C:/Users/ADMIN/Desktop/AI Codes/Week_5/2020_bn_nb_data.txt",head=TRUE)
+mydata.net<-hc(mydata,score="k2",start=NULL)
+print(mydata.net)
+mydata.net.fit<-bn.fit(mydata.net, mydata)
+plot(mydata.net)
