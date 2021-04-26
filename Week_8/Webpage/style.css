@@ -1,0 +1,34 @@
+body {
+    margin: 0px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #24272E;
+}
+
+h1 {
+  color: #24272E;
+	text-align: center;
+	font-family: 'Asap', sans-serif;
+	font-size: 40px;
+	font-weight: bold;
+}
+.btn {
+    transition-duration: 0.4s;
+    border-radius: 30%;
+    padding: 14px 25px;
+    font-size: 20px;
+	  font-weight: bold;
+  }
+  
+  .btn:hover {
+    background-color: #12f31d; /* Green */
+    color: rgb(10, 12, 10);
+  }
+header {
+  background: white;
+  padding: 20px;
+}
+.choices{
+  padding: 20px;
+	text-align: center;
+  background-color: white;
+}

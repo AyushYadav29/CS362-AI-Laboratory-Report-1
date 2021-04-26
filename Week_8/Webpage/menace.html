@@ -1,0 +1,231 @@
+<html>
+  <head>
+    <title>MENACE by Michie</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+<body>
+  <header>
+    <h1>Menace Board</h1>
+  </header>
+  <div>
+    <br>
+    <center>
+      <table border="10" cellspacing="2" cellpadding="2" color="green">
+        <tr>
+          <td><img src="blank.png" name="p0" id="p0" onclick="choose(0);" /></td>
+          <td><img src="blank.png" name="p1" id="p1" onclick="choose(1);" /></td>
+          <td><img src="blank.png" name="p2" id="p2" onclick="choose(2);" /></td>
+        </tr>
+        <tr>
+          <td><img src="blank.png" name="p3" id="p3" onclick="choose(3);" /></td>
+          <td><img src="blank.png" name="p4" id="p4" onclick="choose(4);" /></td>
+          <td><img src="blank.png" name="p5" id="p5" onclick="choose(5);" /></td>
+        </tr>
+        <tr>
+          <td><img src="blank.png" name="p6" id="p6" onclick="choose(6);" /></td>
+          <td><img src="blank.png" name="p7" id="p7" onclick="choose(7);" /></td>
+          <td><img src="blank.png" name="p8" id="p8" onclick="choose(8);" /></td>
+        </tr>
+      </table>
+    </center>
+    <br>
+  </div>
+ 
+  <hr>
+  
+  <div class="choices">
+    <input type="button" value="Restart" class="btn" onclick="restart();" />
+    <input type="button" value="Save" class="btn" onclick="save();" />
+    <input type="button" value="Load" class="btn" onclick="load();" />
+  </div>
+ 
+  <hr>
+  
+  <div id="example1">
+    <center>
+      <textarea name="saveload" id="saveload" rows="10" cols="40"></textarea>
+    </center>
+  </div>
+</body>
+<script language="JavaScript">
+var BLANK = 0;
+var HUMAN = 1;
+var COMPUTER = 2;
+var GAME_DRAWN = -1;
+
+var ttt = new Array();            // The game currently in play
+var record_moves = new Array();   // holds moves made by computer
+var record_pos = new Array();     // holds board positions faced by computer
+var mv;                           // Index of recorded moves
+var winner;                       // Holds identity of winner if there is one
+restart();                        // Clear grid
+
+// Each row of positions corresponds to a single matchbox
+var mboxes = new Array();
+
+function restart ()
+{ for (var c = 0; c < 9; c++)
+   { ttt[c] = BLANK;
+     document.getElementById("p" + c).src = "blank.png";
+     record_moves[c] = -1;      // Blanks out playing history
+     record_pos[c] = -1;
+   }
+  mv = 0;
+  document.getElementById("saveload").value = "";
+  winner = 0;
+}
+
+function choose (which)
+{ if (winner == 0)   // Check game hasn't ended
+   { if (ttt[which] != BLANK)
+       alert("That space is already taken. Pick another");
+     else
+      { ttt[which] = HUMAN;       // Record move
+        document.getElementById("p" + which).src = "H.png";
+        check_for_win();
+        if (winner == 0)    // Nobody has won yet
+          pick_move();
+      }
+   }
+}
+
+// Computer's response based on the current state of ttt
+function pick_move ()
+{ var idx = encode();
+  var entry = get_entry(idx);
+  var total = count_beads(entry);
+  var chosen = pick_bead(entry,total,idx);
+  document.getElementById("p" + chosen).src = "C.png";
+  ttt[chosen] = COMPUTER;
+  check_for_win();
+}
+
+// Turn board ttt into a base-three number
+function encode ()
+{ return ttt[0] + 3 * ttt[1] + 9 * ttt[2] + 27 * ttt[3] + 81 * ttt[4]
+        + 243 * ttt[5] + 729 * ttt[6] + 2187 * ttt[7] + 6561 * ttt[8];
+}
+
+// Return a row of array 'mboxes'. If the row doesn't yet exist
+// create it, fill each position with 10 beads, then return it
+function get_entry (idx)
+{ if (typeof mboxes[idx] == 'undefined')
+   { mboxes[idx] = new Array();    // Create row
+     // Only put in box beads corresponding to an empty position
+     for (var c = 0; c < 9; c++)
+       if (ttt[c] == BLANK)
+         mboxes[idx][c] = 10;
+       else
+         mboxes[idx][c] = 0;
+   }
+  return mboxes[idx];
+}
+
+// Count how many beads there are in this box
+function count_beads (entry)
+{ var total = 0;
+  for (var c = 0; c < 9; c++)
+    total += entry[c];
+  return total;
+}
+
+// Pick a bead based on contents of this matchbox
+function pick_bead (entry, total, idx)
+{ var rnd = Math.floor(Math.random() * total) + 1;
+  var found = false;
+  var running_total = 0;
+  for (var c = 0; c < 9; c++)
+   { running_total += entry[c];
+     if (!found && running_total >= rnd)
+      { var chosen = c;
+        found = true;
+      }
+   }
+  // Record this move in game history
+  record_pos[mv] = idx;
+  record_moves[mv] = chosen;
+  mv++;              // Ready to record next move
+  return chosen;
+}
+
+// Return 1 if computer has won, 2 if human has won, 0 otherwise
+function check_for_win ()
+{ winner = 0;   // Assume nobody
+  if (check_winner(HUMAN))
+   { winner = HUMAN;
+     alert("The human player has won!");
+   }
+  if (check_winner(COMPUTER))
+   { winner = COMPUTER;
+     alert("The computer has won!");
+   }
+  // If no winner detected, check to see if it's a draw
+  if (winner == 0)
+   { var empty_square = false;
+     for (var c = 0; c < 9; c++)
+      { if (ttt[c] == BLANK)
+          empty_square = true;
+      }
+     if (!empty_square)   // No empty squares
+      { winner = GAME_DRAWN;
+        alert("This game is a draw!");
+      }
+   }
+  if (winner != 0)
+    post_mortem();
+}
+
+// Check to see if one side has won
+function check_winner (who)
+{ return (check_line(0,1,2,who) || check_line(3,4,5,who) || check_line(6,7,8,who) ||
+          check_line(0,3,6,who) || check_line(1,4,7,who) || check_line(2,5,8,who) ||
+          check_line(0,4,8,who) || check_line(2,4,6,who));
+}
+
+// Check three cells in a line to see if someone has won
+function check_line (cell1, cell2, cell3, who)
+{ return (ttt[cell1] == who && ttt[cell2] == who && ttt[cell3] == who)
+}
+
+// Adjust matches in relevant boxes, +3 if computer won, -1 if human won
+// +1 if game was a draw
+function post_mortem ()
+{ if (winner == COMPUTER)
+    var adjustment = 3;
+  if (winner == HUMAN)
+    var adjustment = -1;
+  if (winner == GAME_DRAWN)
+    var adjustment = 1;
+  for (c = 0; c < mv; c++)
+    mboxes[record_pos[c]][record_moves[c]] += adjustment;
+}
+
+// Write the matchbox contents out to the text area
+function save ()
+{ var s = "";
+  for (var row = 0; row < 19683; row++)
+    if (typeof mboxes[row] != 'undefined')
+     { s += row;
+       for (var c = 0; c < 9; c++)
+         s += "," + mboxes[row][c];
+       s += "\n";
+     }
+  document.getElementById("saveload").value = s;
+}
+
+// Load the matchbox contents from the text area
+function load ()
+{ var s = document.getElementById("saveload").value;
+  var rows = s.split("\n");   // separate into rows;
+  for (row = 0; row < rows.length; row++)
+   { // separate each row into items (comma delimited)
+     var items = rows[row].split(",");
+     var idx = items[0];
+     mboxes[idx] = new Array();
+     for (var c = 0; c < 9; c++)
+       mboxes[idx][c] = items[c+1];
+   }
+  alert("Matchboxes loaded");
+}
+</script>
+</html>
